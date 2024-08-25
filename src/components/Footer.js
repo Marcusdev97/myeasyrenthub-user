@@ -1,12 +1,12 @@
-// src/pages/Footer.js
+// src/components/Footer.js
 import React from 'react';
 
-function Footer() {
+const Footer = () => {
   return (
-    <div>
-      <h1>欢迎来到易租屋</h1>
-    </div>
+    <footer style={{ padding: '10px 20px', borderTop: '1px solid #ddd', textAlign: 'center', marginTop: '20px' }}>
+      <p>&copy; {new Date().getFullYear()} 易租屋. All rights reserved.</p>
+    </footer>
   );
-}
+};
 
 export default Footer;
