@@ -1,6 +1,7 @@
-// src/pages/PropertyList.js
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import '../styles/PropertyList.css';
+import '../fontawesome-free-6.6.0-web/css/all.min.css'; // Adjust the path as needed based on your file structure
 
 // Component to handle the property search with suggestions
 const PropertySearch = () => {
@@ -23,7 +24,7 @@ const PropertySearch = () => {
       />
       {/* Display search suggestions */}
       <div className="suggestions-container">
-      <p class="suggestion-text">为您推荐的地区：</p>
+        <p className="suggestion-text">为您推荐的地区：</p>
         {suggestions.map((suggestion, index) => (
           <button
             key={index}
@@ -42,29 +43,31 @@ const PropertyList = () => {
   const [properties, setProperties] = useState([]);
   const [errorMessage, setErrorMessage] = useState('');
   const [activeTab, setActiveTab] = useState('租房');
+  const navigate = useNavigate(); // Hook for programmatic navigation
 
-  const fetchProperties = async () => {
-    try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/properties`);
-      if (!response.ok) {
-        console.error('Response error:', response.status, response.statusText);
-        setErrorMessage('加载房源失败，请稍后重试。');
-        return;
-      }
-
-      const data = await response.json();
-      setProperties(data);
-    } catch (error) {
-      console.error('获取房源时出错:', error);
-      setErrorMessage('加载房源失败，请稍后重试。');
-    }
-  };
-
-  const fetchAirbnb = () => {
-    console.log("Fetching Airbnb data is not implemented yet.");
+  // Function to handle property item click
+  const handlePropertyClick = (id) => {
+    navigate(`/properties/${id}`);
   };
 
   useEffect(() => {
+    const fetchProperties = async () => {
+      try {
+        const response = await fetch(`${process.env.REACT_APP_API_URL}/api/properties`);
+        if (!response.ok) {
+          console.error('Response error:', response.status, response.statusText);
+          setErrorMessage('加载房源失败，请稍后重试。');
+          return;
+        }
+
+        const data = await response.json();
+        setProperties(data);
+      } catch (error) {
+        console.error('获取房源时出错:', error);
+        setErrorMessage('加载房源失败，请稍后重试。');
+      }
+    };
+
     if (activeTab === '租房') {
       fetchProperties();
     }
@@ -115,7 +118,7 @@ const PropertyList = () => {
           租房
         </button>
         <button 
-          onClick={fetchAirbnb} 
+          onClick={() => console.log('Fetching Airbnb data is not implemented yet.')} 
           className="disabled-tab"
           disabled
         >
@@ -127,7 +130,7 @@ const PropertyList = () => {
       {errorMessage && <div className="error-message">{errorMessage}</div>}
       <div className="property-list">
         {properties.map(property => (
-          <div key={property.id} className="property-item">
+          <div key={property.id} className="property-item" onClick={() => handlePropertyClick(property.id)}>
             {/* Property Image */}
             {renderImages(property.images)}
             

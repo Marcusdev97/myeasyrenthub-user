@@ -65,9 +65,8 @@ body {
 }
 
 .property-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 20px;
+  display: flex;
+  flex-direction: column; /* Arrange items vertically */
 }
 
 .property-item {
@@ -75,11 +74,19 @@ body {
   padding: 20px;
   border-radius: 8px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  display: flex;
-  flex-direction: row; /* Restore row layout for desktop */
   width: 100%;
   align-items: center;
+  display: flex;
+  flex-direction: row; /* Maintain row layout */
+  position: relative; /* Ensure relative positioning for the separator */
+  /* margin-bottom: 20px; Space between items */
 }
+
+.property-item:not(:last-child) {
+  border-bottom: 1px solid #ddd; /* Light grey line */
+  /* margin-bottom: 1%; Add spacing below the line */
+}
+
 
 .property-image-container {
   width: 240px; /* Fixed width for desktop */
