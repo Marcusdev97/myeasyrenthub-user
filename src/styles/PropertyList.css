@@ -209,6 +209,17 @@ body {
   margin-bottom: 20px;
 }
 
+.no-results-message {
+  display: flex;           
+  justify-content: center;   
+  align-items: center;       
+  /* height: 100vh;            */
+  font-size: 1.5rem;        
+  color: #666;             
+  text-align: center;       
+}
+
+
 /* Media query for mobile responsiveness */
 @media screen and (max-width: 768px) {
   .property-list {
@@ -239,5 +250,9 @@ body {
 
   .search-input {
     width: calc(100% - 20%); /* Full width with padding consideration */
+  }
+
+  .no-results-message {
+    font-size: 1em;
   }
 }

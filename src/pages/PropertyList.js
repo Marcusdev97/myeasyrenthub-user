@@ -4,22 +4,32 @@ import '../styles/PropertyList.css';
 import '../fontawesome-free-6.6.0-web/css/all.min.css'; // Adjust the path as needed based on your file structure
 
 // Component to handle the property search with suggestions
-const PropertySearch = () => {
+const PropertySearch = ({ onSearch }) => {
   const [searchValue, setSearchValue] = useState('');
   const [suggestions] = useState(['SS13', 'SS15', 'CasaTiara', 'IconCity', 'Greenfield', 'GeoSense', 'GeoLake', 'Union', 'Edumetro']);
 
+  // Handle suggestion click
   const handleSuggestionClick = (suggestion) => {
     setSearchValue(suggestion);
+    onSearch(suggestion); // Trigger the search action in the parent component
+  };
+
+  // Handle 'Enter' key press
+  const handleKeyDown = (event) => {
+    if (event.key === 'Enter') {
+      onSearch(searchValue); // Trigger search action when Enter is pressed
+    }
   };
 
   return (
     <div className="search-container">
       <h1>泰来租房帮手</h1>
-      <input 
-        type="text" 
+      <input
+        type="text"
         value={searchValue}
-        placeholder="输入小区或商圈开始找房咯~" 
+        placeholder="输入小区或商圈开始找房咯~"
         onChange={(e) => setSearchValue(e.target.value)}
+        onKeyDown={handleKeyDown} // Listen for Enter key
         className="search-input"
       />
       {/* Display search suggestions */}
@@ -41,11 +51,13 @@ const PropertySearch = () => {
 
 const PropertyList = () => {
   const [properties, setProperties] = useState([]);
+  const [filteredProperties, setFilteredProperties] = useState([]);
   const [errorMessage, setErrorMessage] = useState('');
   const [activeTab, setActiveTab] = useState('租房');
-  const navigate = useNavigate(); // Hook for programmatic navigation
+  const [searchValue, setSearchValue] = useState(''); // To store the selected search value
+  const navigate = useNavigate(); // For programmatic navigation
 
-  // Function to handle property item click
+  // Handle property item click
   const handlePropertyClick = (id) => {
     navigate(`/properties/${id}`);
   };
@@ -61,7 +73,8 @@ const PropertyList = () => {
         }
 
         const data = await response.json();
-        setProperties(data);
+        setProperties(data); // Set all properties
+        setFilteredProperties(data); // Initially display all properties
       } catch (error) {
         console.error('获取房源时出错:', error);
         setErrorMessage('加载房源失败，请稍后重试。');
@@ -72,6 +85,18 @@ const PropertyList = () => {
       fetchProperties();
     }
   }, [activeTab]);
+
+  // Filter properties whenever searchValue changes
+  useEffect(() => {
+    if (searchValue) {
+      const filtered = properties.filter((property) =>
+        property.location.toLowerCase() === searchValue.toLowerCase() // Ensure case-insensitive match
+      );
+      setFilteredProperties(filtered);
+    } else {
+      setFilteredProperties(properties); // If no search value, display all properties
+    }
+  }, [searchValue, properties]);
 
   const renderImages = (images) => {
     if (!images) return null;
@@ -107,7 +132,7 @@ const PropertyList = () => {
   return (
     <div>
       {/* Include the search component */}
-      <PropertySearch />
+      <PropertySearch onSearch={setSearchValue} />
 
       {/* Navigation for 租房 and 民宿 */}
       <div className="navigation-bar">
@@ -126,34 +151,40 @@ const PropertyList = () => {
         </button>
       </div>
 
-      {/* Property Listings */}
+      {/* Error Message */}
       {errorMessage && <div className="error-message">{errorMessage}</div>}
-      <div className="property-list">
-        {properties.map(property => (
-          <div key={property.id} className="property-item" onClick={() => handlePropertyClick(property.id)}>
-            {/* Property Image */}
-            {renderImages(property.images)}
-            
-            {/* Property Details */}
-            <div className="property-details">
-                {/* Display the formatted available date */}
-                <div className="available-date">
-                  {formatAvailableDate(property.availableDate)}
-                </div>
-                <h3 className="property-title">{property.title}</h3>
-                <p className="property-info">卧室: {property.rooms} | 浴室: {property.bathrooms}</p>
-                <p className="property-description">{property.description}</p>
-                {/* Display tags */}
-                <div className="property-tags">
-                  {property.tags && property.tags.split(';').map((tag, index) => (
-                    <span key={index} className="property-tag">{tag}</span>
-                  ))}
-                </div>
-                <p className="property-price">{property.price} 马币/月</p>
+
+      {/* Check if filtered properties are empty */}
+      {filteredProperties.length === 0 && searchValue ? (
+        <div className="no-results-message">不好意思，目前已经没有这区的单位了</div>
+      ) : (
+        <div className="property-list">
+          {filteredProperties.map(property => (
+            <div key={property.id} className="property-item" onClick={() => handlePropertyClick(property.id)}>
+              {/* Property Image */}
+              {renderImages(property.images)}
+              
+              {/* Property Details */}
+              <div className="property-details">
+                  {/* Display the formatted available date */}
+                  <div className="available-date">
+                    {formatAvailableDate(property.availableDate)}
+                  </div>
+                  <h3 className="property-title">{property.title}</h3>
+                  <p className="property-info">卧室: {property.rooms} | 浴室: {property.bathrooms}</p>
+                  <p className="property-description">{property.description}</p>
+                  {/* Display tags */}
+                  <div className="property-tags">
+                    {property.tags && property.tags.split(';').map((tag, index) => (
+                      <span key={index} className="property-tag">{tag}</span>
+                    ))}
+                  </div>
+                  <p className="property-price">{property.price} 马币/月</p>
+              </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };
