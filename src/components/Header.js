@@ -19,7 +19,7 @@ const Header = () => {
       <nav style={{ flex: '2', display: 'flex', justifyContent: 'center', gap: '20px' }}>
         <Link to="/" style={{ textDecoration: 'none', color: 'black' }}>主页</Link>
         <Link to="/properties" style={{ textDecoration: 'none', color: 'black' }}>房源</Link>
-        <Link to="/contact" style={{ textDecoration: 'none', color: 'black' }}>联络我们</Link>
+        {/* <Link to="/contact" style={{ textDecoration: 'none', color: 'black' }}>联络我们</Link> */}
       </nav>
 
       {/* Right Side - Empty for now */}

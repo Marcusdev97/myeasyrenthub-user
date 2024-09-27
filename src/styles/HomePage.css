@@ -1,3 +1,5 @@
+/* src/styles/HomePage.css */
+
 .home-page {
   font-family: Arial, sans-serif;
   margin: 0;
@@ -19,6 +21,7 @@
 
 .frame {
   width: 80%;
+  max-width: 800px; /* Ensures frames don't get too wide on large screens */
   margin: 40px auto;
   padding: 20px;
   background-color: #f9f9f9;
@@ -31,10 +34,6 @@
 
 .frame-left {
   transform: translateX(-100%);
-}
-
-.frame-right {
-  transform: translateX(100%);
 }
 
 .frame.show {
@@ -54,27 +53,35 @@
   margin-bottom: 20px;
 }
 
-/* 统一按钮样式 */
+.button-container {
+  display: flex;
+  flex-wrap: wrap; /* Allows buttons to wrap on smaller screens */
+  justify-content: center;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+/* Unified button styles */
 .action-button {
   display: inline-block;
-  background-color: #007BFF; /* 按钮的主色 */
+  background-color: #007BFF;
   color: white;
-  padding: 12px 24px; /* 统一按钮的内边距 */
+  padding: 12px 24px;
   text-decoration: none;
-  font-size: 16px; /* 统一字体大小 */
-  border-radius: 8px; /* 圆角半径 */
-  border: none; /* 移除边框 */
-  transition: background-color 0.3s ease, box-shadow 0.3s ease; /* 动画效果 */
+  font-size: 16px;
+  border-radius: 8px;
+  border: none;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
   cursor: pointer;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* 添加阴影 */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .action-button:hover {
-  background-color: #0056b3; /* 鼠标悬停时颜色变化 */
-  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2); /* 悬停时的阴影效果 */
+  background-color: #0056b3;
+  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
 }
 
-/* 模态框样式 */
+/* Modal styles */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -85,6 +92,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  z-index: 1000;
 }
 
 .modal {
@@ -93,6 +101,7 @@
   border-radius: 10px;
   text-align: center;
   width: 300px;
+  max-width: 90%;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
@@ -114,4 +123,35 @@
 
 .close-button:hover {
   background-color: #0056b3;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .main-title {
+    font-size: 2em;
+    margin-top: 20px;
+  }
+
+  .sub-title {
+    font-size: 1em;
+    margin-bottom: 20px;
+  }
+
+  .frame {
+    width: 90%;
+    margin: 20px auto;
+  }
+
+  .frame h2 {
+    font-size: 1.5em;
+  }
+
+  .frame p {
+    font-size: 1em;
+  }
+
+  .action-button {
+    font-size: 14px;
+    padding: 10px 20px;
+  }
 }

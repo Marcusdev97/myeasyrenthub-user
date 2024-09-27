@@ -5,7 +5,7 @@ import HomePage from './pages/HomePage';
 import PropertyList from './pages/PropertyList'; // PropertyList for listing properties
 import LocationDetails from './pages/LocationDetails'; // LocationDetails for location-specific details
 import PropertyDetails from './pages/PropertyDetails'; // PropertyDetails for specific property information
-import ContactPage from './pages/ContactPage';
+// import ContactPage from './pages/ContactPage';
 import Header from './components/Header';
 import Footer from './components/Footer';
 
@@ -40,7 +40,7 @@ function App() {
             />
 
             {/* Contact Page */}
-            <Route path="/contact" element={<ContactPage />} />
+            {/* <Route path="/contact" element={<ContactPage />} /> */}
           </Routes>
         </div>
         <Footer />
