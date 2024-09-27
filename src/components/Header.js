@@ -1,13 +1,13 @@
-// src/components/Header.js
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 
 const Header = () => {
+  const location = useLocation(); // Get current route
+
   return (
-    <header style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 20px', borderBottom: '1px solid #ddd' }}>
+    <header style={headerStyle}>
       {/* Left Side - Logo */}
       <div style={{ flex: '1' }}>
-        {/* Sample Logo Image */}
         <img
           src="/path/to/sample-logo.png"
           alt="Logo"
@@ -15,19 +15,55 @@ const Header = () => {
         />
       </div>
 
-      {/* Center - Navigation Links */}
-      <nav style={{ flex: '2', display: 'flex', justifyContent: 'center', gap: '20px' }}>
-        <Link to="/" style={{ textDecoration: 'none', color: 'black' }}>主页</Link>
-        <Link to="/properties" style={{ textDecoration: 'none', color: 'black' }}>房源</Link>
-        {/* <Link to="/contact" style={{ textDecoration: 'none', color: 'black' }}>联络我们</Link> */}
+      {/* Right Side - Navigation Links */}
+      <nav style={navStyle}>
+        <Link
+          to="/"
+          style={{ ...linkStyle, borderBottom: location.pathname === '/' ? '3px solid #1a73e8' : 'none' }}
+        >
+          主页
+        </Link>
+        <Link
+          to="/properties"
+          style={{ ...linkStyle, borderBottom: location.pathname === '/properties' ? '3px solid #1a73e8' : 'none' }}
+        >
+          房源
+        </Link>
+        {/* Uncomment if needed */}
+        {/* <Link
+          to="/contact"
+          style={{ ...linkStyle, borderBottom: location.pathname === '/contact' ? '3px solid #1a73e8' : 'none' }}
+        >
+          联络我们
+        </Link> */}
       </nav>
-
-      {/* Right Side - Empty for now */}
-      <div style={{ flex: '1' }}>
-        {/* Right side content goes here, if needed */}
-      </div>
     </header>
   );
+};
+
+// Styles
+const headerStyle = {
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  padding: '10px 20px',
+  borderBottom: '1px solid #ddd',
+};
+
+const navStyle = {
+  flex: '2',
+  display: 'flex',
+  justifyContent: 'flex-end', // Align right
+  gap: '30px', // Space between items
+};
+
+const linkStyle = {
+  textDecoration: 'none',
+  color: 'black',
+  fontSize: '16px',
+  fontWeight: 'bold',
+  paddingBottom: '10px',
+  transition: 'border-bottom 0.3s ease',
 };
 
 export default Header;
