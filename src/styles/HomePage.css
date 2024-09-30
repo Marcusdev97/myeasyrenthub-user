@@ -140,6 +140,8 @@
   .frame {
     width: 90%;
     margin: 20px auto;
+    opacity: 1;
+    transform: translateX(0);
   }
 
   .frame h2 {

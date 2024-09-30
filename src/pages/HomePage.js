@@ -11,25 +11,32 @@ function HomePage() {
   // Scroll-triggered animation effect
   useEffect(() => {
     const frames = document.querySelectorAll('.frame');
-    const handleScroll = () => {
+    const isMobile = window.innerWidth <= 768;
+    if (isMobile) {
       frames.forEach((frame) => {
-        const frameTop = frame.getBoundingClientRect().top;
-        const frameHeight = frame.offsetHeight;
-        const windowHeight = window.innerHeight;
-
-        // Adjusted the threshold for when the frame comes into view
-        if (frameTop <= windowHeight - frameHeight / 4) {
-          frame.classList.add('show');
-        }
+        frame.classList.add('show');
       });
-    };
+    } else {
+      const handleScroll = () => {
+        frames.forEach((frame) => {
+          const frameTop = frame.getBoundingClientRect().top;
+          const frameHeight = frame.offsetHeight;
+          const windowHeight = window.innerHeight;
 
-    // Trigger the animation on load and on scroll
-    handleScroll(); // Ensure frames in view on page load are displayed
-    window.addEventListener('scroll', handleScroll);
+          // Adjusted the threshold for when the frame comes into view
+          if (frameTop <= windowHeight - frameHeight / 4) {
+            frame.classList.add('show');
+          }
+        });
+      };
 
-    // Clean up event listener
-    return () => window.removeEventListener('scroll', handleScroll);
+      // Trigger the animation on load and on scroll
+      handleScroll(); // Ensure frames in view on page load are displayed
+      window.addEventListener('scroll', handleScroll);
+
+      // Clean up event listener
+      return () => window.removeEventListener('scroll', handleScroll);
+    }
   }, []);
 
   // Modal functions
