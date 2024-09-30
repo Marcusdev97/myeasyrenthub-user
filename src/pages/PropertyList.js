@@ -37,7 +37,9 @@ const PropertySearch = ({ onSearch, searchValue, setSearchValue }) => {
           onKeyDown={handleKeyDown}
           className="search-input"
         />
-        <button onClick={handleSearchClick} className="search-button">搜索</button>
+        <button onClick={handleSearchClick} className="search-button">
+          搜索
+        </button>
       </div>
       {/* Display search suggestions */}
       <div className="suggestions-container">
@@ -59,7 +61,7 @@ const PropertySearch = ({ onSearch, searchValue, setSearchValue }) => {
 const PropertyList = () => {
   const [properties, setProperties] = useState([]);
   const [filteredProperties, setFilteredProperties] = useState([]);
-  const [errorMessage, setErrorMessage] = useState('');
+  // Removed errorMessage state
   const [activeTab, setActiveTab] = useState('租房');
   const navigate = useNavigate();
   const location = useLocation();
@@ -97,7 +99,7 @@ const PropertyList = () => {
         const response = await fetch(`${process.env.REACT_APP_API_URL}/api/properties`);
         if (!response.ok) {
           console.error('Response error:', response.status, response.statusText);
-          setErrorMessage('加载房源失败，请稍后重试。');
+          // Do not display error message to the user
           return;
         }
 
@@ -106,7 +108,7 @@ const PropertyList = () => {
         setFilteredProperties(data); // Initially display all properties
       } catch (error) {
         console.error('获取房源时出错:', error);
-        setErrorMessage('加载房源失败，请稍后重试。');
+        // Do not display error message to the user
       }
     };
 
@@ -180,8 +182,7 @@ const PropertyList = () => {
         </button>
       </div>
 
-      {/* Error Message */}
-      {errorMessage && <div className="error-message">{errorMessage}</div>}
+      {/* Removed error message display */}
 
       {/* Check if filtered properties are empty */}
       {filteredProperties.length === 0 && searchValue ? (
