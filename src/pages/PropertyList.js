@@ -1,11 +1,10 @@
+// src/components/PropertyList.js
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import '../styles/PropertyList.css';
-import '../fontawesome-free-6.6.0-web/css/all.min.css'; // Adjust the path as needed based on your file structure
+import '../fontawesome-free-6.6.0-web/css/all.min.css';
 
-// Component to handle the property search with suggestions
-const PropertySearch = ({ onSearch }) => {
-  const [searchValue, setSearchValue] = useState('');
+const PropertySearch = ({ onSearch, searchValue, setSearchValue }) => {
   const [suggestions] = useState(['SS13', 'SS15', 'CasaTiara', 'IconCity', 'Greenfield', 'GeoSense', 'GeoLake', 'Union', 'Edumetro']);
 
   // Handle suggestion click
@@ -21,17 +20,25 @@ const PropertySearch = ({ onSearch }) => {
     }
   };
 
+  // Handle search button click
+  const handleSearchClick = () => {
+    onSearch(searchValue);
+  };
+
   return (
     <div className="search-container">
       <h1>泰来租房帮手</h1>
-      <input
-        type="text"
-        value={searchValue}
-        placeholder="输入小区或商圈开始找房咯~"
-        onChange={(e) => setSearchValue(e.target.value)}
-        onKeyDown={handleKeyDown} // Listen for Enter key
-        className="search-input"
-      />
+      <div className="search-input-container">
+        <input
+          type="text"
+          value={searchValue}
+          placeholder="输入小区或商圈开始找房咯~"
+          onChange={(e) => setSearchValue(e.target.value)}
+          onKeyDown={handleKeyDown}
+          className="search-input"
+        />
+        <button onClick={handleSearchClick} className="search-button">搜索</button>
+      </div>
       {/* Display search suggestions */}
       <div className="suggestions-container">
         <p className="suggestion-text">为您推荐的地区：</p>
@@ -54,12 +61,34 @@ const PropertyList = () => {
   const [filteredProperties, setFilteredProperties] = useState([]);
   const [errorMessage, setErrorMessage] = useState('');
   const [activeTab, setActiveTab] = useState('租房');
-  const [searchValue, setSearchValue] = useState(''); // To store the selected search value
-  const navigate = useNavigate(); // For programmatic navigation
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  // Get initial search value from query parameters
+  const queryParams = new URLSearchParams(location.search);
+  const initialSearchValue = queryParams.get('search') || '';
+
+  // Search value state
+  const [searchValue, setSearchValue] = useState(initialSearchValue);
+
+  // Update searchValue when location.search changes
+  useEffect(() => {
+    const queryParams = new URLSearchParams(location.search);
+    const newSearchValue = queryParams.get('search') || '';
+    if (newSearchValue !== searchValue) {
+      setSearchValue(newSearchValue);
+    }
+  }, [location.search]);
 
   // Handle property item click
   const handlePropertyClick = (id) => {
     navigate(`/properties/${id}`);
+  };
+
+  // Handle search action
+  const handleSearch = (newSearchValue) => {
+    // Update the URL with the new search value
+    navigate(`/properties?search=${encodeURIComponent(newSearchValue)}`);
   };
 
   useEffect(() => {
@@ -73,7 +102,7 @@ const PropertyList = () => {
         }
 
         const data = await response.json();
-        setProperties(data); // Set all properties
+        setProperties(data);
         setFilteredProperties(data); // Initially display all properties
       } catch (error) {
         console.error('获取房源时出错:', error);
@@ -90,17 +119,17 @@ const PropertyList = () => {
   useEffect(() => {
     if (searchValue) {
       const filtered = properties.filter((property) =>
-        property.location.toLowerCase() === searchValue.toLowerCase() // Ensure case-insensitive match
+        property.location.toLowerCase() === searchValue.toLowerCase()
       );
       setFilteredProperties(filtered);
     } else {
-      setFilteredProperties(properties); // If no search value, display all properties
+      setFilteredProperties(properties);
     }
   }, [searchValue, properties]);
 
   const renderImages = (images) => {
     if (!images) return null;
-    const imageArray = images.split(',').map(image => image.trim().replace(/[\[\]"]+/g, ''));
+    const imageArray = images.split(',').map((image) => image.trim().replace(/[\[\]"]+/g, ''));
     const firstImage = imageArray[0];
     return (
       <div className="property-image-container">
@@ -132,18 +161,18 @@ const PropertyList = () => {
   return (
     <div>
       {/* Include the search component */}
-      <PropertySearch onSearch={setSearchValue} />
+      <PropertySearch onSearch={handleSearch} searchValue={searchValue} setSearchValue={setSearchValue} />
 
       {/* Navigation for 租房 and 民宿 */}
       <div className="navigation-bar">
-        <button 
-          onClick={() => setActiveTab('租房')} 
+        <button
+          onClick={() => setActiveTab('租房')}
           className={activeTab === '租房' ? 'active-tab' : 'inactive-tab'}
         >
           租房
         </button>
-        <button 
-          onClick={() => console.log('Fetching Airbnb data is not implemented yet.')} 
+        <button
+          onClick={() => console.log('Fetching Airbnb data is not implemented yet.')}
           className="disabled-tab"
           disabled
         >
@@ -159,27 +188,30 @@ const PropertyList = () => {
         <div className="no-results-message">不好意思，目前已经没有这区的单位了</div>
       ) : (
         <div className="property-list">
-          {filteredProperties.map(property => (
+          {filteredProperties.map((property) => (
             <div key={property.id} className="property-item" onClick={() => handlePropertyClick(property.id)}>
               {/* Property Image */}
               {renderImages(property.images)}
-              
+
               {/* Property Details */}
               <div className="property-details">
-                  {/* Display the formatted available date */}
-                  <div className="available-date">
-                    {formatAvailableDate(property.availableDate)}
-                  </div>
-                  <h3 className="property-title">{property.title}</h3>
-                  <p className="property-info">卧室: {property.rooms} | 浴室: {property.bathrooms}</p>
-                  <p className="property-description">{property.description}</p>
-                  {/* Display tags */}
-                  <div className="property-tags">
-                    {property.tags && property.tags.split(';').map((tag, index) => (
-                      <span key={index} className="property-tag">{tag}</span>
+                {/* Display the formatted available date */}
+                <div className="available-date">{formatAvailableDate(property.availableDate)}</div>
+                <h3 className="property-title">{property.title}</h3>
+                <p className="property-info">
+                  卧室: {property.rooms} | 浴室: {property.bathrooms}
+                </p>
+                <p className="property-description">{property.description}</p>
+                {/* Display tags */}
+                <div className="property-tags">
+                  {property.tags &&
+                    property.tags.split(';').map((tag, index) => (
+                      <span key={index} className="property-tag">
+                        {tag}
+                      </span>
                     ))}
-                  </div>
-                  <p className="property-price">{property.price} 马币/月</p>
+                </div>
+                <p className="property-price">{property.price} 马币/月</p>
               </div>
             </div>
           ))}

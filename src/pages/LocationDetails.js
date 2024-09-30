@@ -7,6 +7,8 @@ import ss13Image from '../images/ss13-condo.png';
 import casaImage from '../images/casatiara-condo.jpg';
 import greenfieldImage from '../images/greenfield-condo.jpg';
 import geolakeImage from '../images/geolake-condo.jpg';
+import unionImage from '../images/union-condo.jpeg';
+import edumetroImage from '../images/edumetro-condo.jpg';
 
 function LocationDetails() {
   // Static location data including image, name, and description
@@ -24,7 +26,7 @@ function LocationDetails() {
       image: ss13Image,
     },
     {
-      name: 'Casa Tiara',
+      name: 'CasaTiara',
       description:
         'Casa Tiara 可乘坐校车直达泰莱大学，直线距离约为5.9km，驾车约为14分钟。户型多为三居室和两居室，整体价格是泰莱大学周边最划算的。步行10分钟可达BIG商场和超市，周边小区密集，泰莱同学许多都会选择居住这里。',
       image: casaImage,
@@ -41,6 +43,18 @@ function LocationDetails() {
         'Geolake 是同为Sunway开发商旗下的高端小区，其地理位置紧邻彼此，出小区门后就是Sunway Avenue商场，也可经此通过人行天桥直达泰莱大学。小区配套设施豪华，无边游泳池健身房学习室以及小区内绿化公园等，安保系数也是最高等级。',
       image: geolakeImage,
     },
+    {
+      name: 'Union',
+      description:
+        'Union Suites 小区距离泰莱大学仅2km，可通过人行天桥步行直达泰莱大学。小区配套设施非常好，有游泳池健身房拳击台学习室等，居住群体多为留学生。楼下即有Sunway Avenue商场，生活便利。',
+      image: unionImage,
+    },
+    {
+      name: 'Edumetro',
+      description:
+        'Edumetro 小区距离泰莱大学大概7km，该小区户型整体偏小，大多为一居室和两居室，适合独居或情侣租住。步行10分钟即有本地餐馆以及杂货店，性价比较高。',
+      image: edumetroImage,
+    }
   ];
 
   return (
