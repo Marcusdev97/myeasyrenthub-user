@@ -12,6 +12,10 @@ const PropertyDetails = () => {
   const [selectedImage, setSelectedImage] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  // State variables for touch events
+  const [touchStartX, setTouchStartX] = useState(null);
+  const [touchEndX, setTouchEndX] = useState(null);
+
   useEffect(() => {
     const fetchProperty = async () => {
       try {
@@ -32,10 +36,6 @@ const PropertyDetails = () => {
     fetchProperty();
   }, [id]);
 
-  const propertyLocationDescriptions = {
-    // ... (your location descriptions)
-  };
-
   const handleThumbnailClick = (index) => {
     setSelectedImage(index);
   };
@@ -44,12 +44,42 @@ const PropertyDetails = () => {
     setIsModalOpen(!isModalOpen);
   };
 
+  // Handlers for previous and next images
+  const handlePrevImage = () => {
+    setSelectedImage((prevIndex) => (prevIndex === 0 ? property.images.length - 1 : prevIndex - 1));
+  };
+
+  const handleNextImage = () => {
+    setSelectedImage((prevIndex) => (prevIndex === property.images.length - 1 ? 0 : prevIndex + 1));
+  };
+
+  // Touch event handlers for swipe functionality
+  const handleTouchStart = (e) => {
+    setTouchStartX(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchMove = (e) => {
+    setTouchEndX(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchEnd = () => {
+    if (!touchStartX || !touchEndX) return;
+    const distance = touchStartX - touchEndX;
+    const minSwipeDistance = 50; // Adjust as needed
+    if (distance > minSwipeDistance) {
+      // Swiped left
+      handleNextImage();
+    } else if (distance < -minSwipeDistance) {
+      // Swiped right
+      handlePrevImage();
+    }
+    setTouchStartX(null);
+    setTouchEndX(null);
+  };
+
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
   if (!property) return <div>Property not found</div>;
-
-  const locationDescription =
-    propertyLocationDescriptions[property.location] || 'No description available for this location.';
 
   const formatChineseDate = (date) => {
     return new Intl.DateTimeFormat('zh-CN', {
@@ -60,20 +90,34 @@ const PropertyDetails = () => {
   };
 
   const availableDate = new Date(property.availableDate);
-  const leaseEndDate = new Date(availableDate);
-  leaseEndDate.setFullYear(availableDate.getFullYear() + 1);
+  const today = new Date();
+  const displayAvailableDate = availableDate < today ? today : availableDate;
+
+  const leaseEndDate = new Date(displayAvailableDate);
+  leaseEndDate.setFullYear(leaseEndDate.getFullYear() + 1);
   leaseEndDate.setDate(leaseEndDate.getDate() - 1);
 
   return (
     <div className="property-details-container">
       {/* Left section for images */}
       <div className="property-images-section">
-        <div className="main-image-container">
+        <div
+          className="main-image-container"
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+        >
           <img
             src={`${process.env.REACT_APP_API_URL}${property.images[selectedImage]}`}
             alt="Main Property"
             className="main-image"
           />
+          <button className="nav-button prev-button" onClick={handlePrevImage}>
+            ‹
+          </button>
+          <button className="nav-button next-button" onClick={handleNextImage}>
+            ›
+          </button>
         </div>
         <div className="thumbnail-images-container">
           {property.images.map((image, index) => (
@@ -94,7 +138,6 @@ const PropertyDetails = () => {
         <h1 className="property-title">{property.title || 'Property Title'}</h1>
         <p className="property-price">{property.price || 'Price Not Available'} 马币/月</p>
         <p className="property-description">{property.description || '没有什么要求'}</p>
-
         <div className="property-tags">
           {property.tags
             ? property.tags.split(';').map((tag, index) => (
@@ -140,7 +183,7 @@ const PropertyDetails = () => {
         <div className="lease-info-content">
           <div className="lease-info-row">
             <span className="lease-info-label">可入住日期</span>
-            <span className="lease-info-value">{formatChineseDate(availableDate)}</span>
+            <span className="lease-info-value">{formatChineseDate(displayAvailableDate)}</span>
           </div>
           <div className="lease-info-row">
             <span className="lease-info-label">签约时长</span>
@@ -168,7 +211,7 @@ const PropertyDetails = () => {
               <li>选择您感兴趣的房源，并联系房产代理了解详情。</li>
               <li>安排实地考察，亲自查看房屋状况。</li>
               <li>确认租赁意向，与房东或代理协商租金和条款。</li>
-              <li>准备必要的文件，如身份证明和工作证明。</li>
+              <li>准备必要的文件，如身份证明和学生证/工作证明。</li>
               <li>签署租赁合同，支付押金和首月租金。</li>
               <li>领取钥匙，正式入住您的新家。</li>
             </ol>
