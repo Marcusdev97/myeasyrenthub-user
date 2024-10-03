@@ -48,9 +48,10 @@
 }
 
 .frame p {
-  font-size: 1.1em;
+  font-size: 1.0em;
   color: #666;
   margin-bottom: 20px;
+  font-style: italic;
 }
 
 .button-container {
@@ -103,6 +104,13 @@
   width: 300px;
   max-width: 90%;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.service-icon {
+  margin-right: 10px;
+  color: #007BFF; /* You can adjust the color */
+  font-size: 1.5em; /* Adjust the size as needed */
+  vertical-align: middle;
 }
 
 .qr-code-img {

@@ -59,7 +59,7 @@ function LocationDetails() {
 
   return (
     <div className="location-info-page">
-      <h1>地区介绍</h1>
+      <h1>泰来附近租房地区介绍</h1>
       {locations.map((location, index) => (
         <div key={index} className="location-card">
           <div className="image-container">
