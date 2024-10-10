@@ -95,6 +95,8 @@ const PropertyList = () => {
 
   useEffect(() => {
     const fetchProperties = async () => {
+      console.log("PropertyList component mounted");
+      console.log("API_URL:", process.env.REACT_APP_API_URL);
       try {
         const response = await fetch(`${process.env.REACT_APP_API_URL}/api/properties`);
         if (!response.ok) {
