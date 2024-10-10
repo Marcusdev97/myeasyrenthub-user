@@ -1,5 +1,5 @@
 // src/App.js
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import HomePage from './pages/HomePage';
 import PropertyList from './pages/PropertyList'; // PropertyList for listing properties
@@ -11,6 +11,16 @@ import Footer from './components/Footer';
 
 function App() {
   const [properties, setProperties] = useState([]); // State to hold properties (can be location or property-specific)
+
+  const PropertyList = () => {
+    useEffect(() => {
+      console.log("Component mounted");
+      console.log("API_URL:", process.env.REACT_APP_API_URL);
+    }, []);
+  
+    // your component code
+    return <div>Property List Component</div>;
+  };
 
   return (
     <Router>
