@@ -11,6 +11,7 @@ function HomePage() {
 
   // Scroll-triggered animation effect
   useEffect(() => {
+    console.log('Heres Home Page');
     const frames = document.querySelectorAll('.frame');
     const isMobile = window.innerWidth <= 768;
     if (isMobile) {
