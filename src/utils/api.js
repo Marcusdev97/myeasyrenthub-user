@@ -8,6 +8,7 @@ export const fetchProperties = async () => {
   try {
     // 使用环境变量中的 API URL
     const response = await axios.get(`${API_URL}/api/properties`);
+    console.log(response);
     return response.data;
   } catch (error) {
     console.error('Error fetching properties:', error);
