@@ -1,5 +1,5 @@
-// src/pages/PropertyDetails.js
 import React, { useState, useEffect } from 'react';
+import { fetchPropertyById } from '../utils/api';
 import { useParams } from 'react-router-dom';
 import '../styles/PropertyDetails.css';
 import wechatNamecard from '../images/wechatNamecard.jpg';
@@ -12,19 +12,11 @@ const PropertyDetails = () => {
   const [selectedImage, setSelectedImage] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // State variables for touch events
-  const [touchStartX, setTouchStartX] = useState(null);
-  const [touchEndX, setTouchEndX] = useState(null);
-
   useEffect(() => {
     const fetchProperty = async () => {
       try {
-        const response = await fetch(`${process.env.REACT_APP_API_URL}/api/properties/${id}`);
-        if (!response.ok) {
-          throw new Error('Failed to fetch property details');
-        }
-
-        const data = await response.json();
+        const data = await fetchPropertyById(id);
+        console.log('Fetched Property Data:', data); // Debug: Log fetched property data
         setProperty(data);
       } catch (error) {
         setError(error.message);
@@ -32,7 +24,6 @@ const PropertyDetails = () => {
         setLoading(false);
       }
     };
-
     fetchProperty();
   }, [id]);
 
@@ -51,30 +42,6 @@ const PropertyDetails = () => {
 
   const handleNextImage = () => {
     setSelectedImage((prevIndex) => (prevIndex === property.images.length - 1 ? 0 : prevIndex + 1));
-  };
-
-  // Touch event handlers for swipe functionality
-  const handleTouchStart = (e) => {
-    setTouchStartX(e.targetTouches[0].clientX);
-  };
-
-  const handleTouchMove = (e) => {
-    setTouchEndX(e.targetTouches[0].clientX);
-  };
-
-  const handleTouchEnd = () => {
-    if (!touchStartX || !touchEndX) return;
-    const distance = touchStartX - touchEndX;
-    const minSwipeDistance = 50; // Adjust as needed
-    if (distance > minSwipeDistance) {
-      // Swiped left
-      handleNextImage();
-    } else if (distance < -minSwipeDistance) {
-      // Swiped right
-      handlePrevImage();
-    }
-    setTouchStartX(null);
-    setTouchEndX(null);
   };
 
   if (loading) return <div>Loading...</div>;
@@ -97,36 +64,47 @@ const PropertyDetails = () => {
   leaseEndDate.setFullYear(leaseEndDate.getFullYear() + 1);
   leaseEndDate.setDate(leaseEndDate.getDate() - 1);
 
+  const backendUrl = 'http://localhost:8080'; // Backend base URL for serving images
+
+  const getFullImageUrl = (image) => {
+    return image.startsWith('http')
+      ? image
+      : `${backendUrl.replace(/\/$/, '')}/${image.replace(/^\//, '')}`;
+  };
+
   return (
     <div className="property-details-container">
       {/* Left section for images */}
       <div className="property-images-section">
-        <div
-          className="main-image-container"
-          onTouchStart={handleTouchStart}
-          onTouchMove={handleTouchMove}
-          onTouchEnd={handleTouchEnd}
-        >
+        <div className="main-image-container">
           <img
-            src={`${process.env.REACT_APP_API_URL}${property.images[selectedImage]}`}
-            alt="Main Property"
+            src={getFullImageUrl(property.images[selectedImage])}
+            alt="房源图片"
             className="main-image"
+            width="600"
+            height="400"
           />
-          <button className="nav-button prev-button" onClick={handlePrevImage}>
-            ‹
-          </button>
-          <button className="nav-button next-button" onClick={handleNextImage}>
-            ›
-          </button>
+          {property.images.length > 1 && (
+            <>
+              <button className="nav-button prev-button" onClick={handlePrevImage}>
+                ‹
+              </button>
+              <button className="nav-button next-button" onClick={handleNextImage}>
+                ›
+              </button>
+            </>
+          )}
         </div>
         <div className="thumbnail-images-container">
           {property.images.map((image, index) => (
             <div key={index} className="thumbnail-wrapper">
               <img
-                src={`${process.env.REACT_APP_API_URL}${image}`}
+                src={getFullImageUrl(image)}
                 alt={`Thumbnail ${index + 1}`}
                 className={`thumbnail-image ${selectedImage === index ? 'active' : ''}`}
                 onClick={() => handleThumbnailClick(index)}
+                width="100"
+                height="75"
               />
             </div>
           ))}

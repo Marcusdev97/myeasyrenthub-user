@@ -1,26 +1,24 @@
 // src/components/PropertyList.js
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { fetchProperties } from '../utils/api';  // Fetch properties from utils/api
 import '../styles/PropertyList.css';
 import '../fontawesome-free-6.6.0-web/css/all.min.css';
 
 const PropertySearch = ({ onSearch, searchValue, setSearchValue }) => {
   const [suggestions] = useState(['SS13', 'SS15', 'CasaTiara', 'IconCity', 'Greenfield', 'GeoSense', 'GeoLake', 'Union', 'Edumetro']);
 
-  // Handle suggestion click
   const handleSuggestionClick = (suggestion) => {
     setSearchValue(suggestion);
-    onSearch(suggestion); // Trigger the search action in the parent component
+    onSearch(suggestion);
   };
 
-  // Handle 'Enter' key press
   const handleKeyDown = (event) => {
     if (event.key === 'Enter') {
-      onSearch(searchValue); // Trigger search action when Enter is pressed
+      onSearch(searchValue);
     }
   };
 
-  // Handle search button click
   const handleSearchClick = () => {
     onSearch(searchValue);
   };
@@ -41,7 +39,6 @@ const PropertySearch = ({ onSearch, searchValue, setSearchValue }) => {
           搜索
         </button>
       </div>
-      {/* Display search suggestions */}
       <div className="suggestions-container">
         <p className="suggestion-text">为您推荐的地区：</p>
         {suggestions.map((suggestion, index) => (
@@ -61,66 +58,48 @@ const PropertySearch = ({ onSearch, searchValue, setSearchValue }) => {
 const PropertyList = () => {
   const [properties, setProperties] = useState([]);
   const [filteredProperties, setFilteredProperties] = useState([]);
-  // Removed errorMessage state
   const [activeTab, setActiveTab] = useState('租房');
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Get initial search value from query parameters
+  // Get initial search value from URL query parameters
   const queryParams = new URLSearchParams(location.search);
   const initialSearchValue = queryParams.get('search') || '';
 
-  // Search value state
+  // State to store the search value
   const [searchValue, setSearchValue] = useState(initialSearchValue);
 
-  // Update searchValue when location.search changes
+  // Update the URL with the new search value when navigating
+  const handleSearch = (newSearchValue) => {
+    navigate(`/properties?search=${encodeURIComponent(newSearchValue)}`);
+  };
+
+  // Update the searchValue state whenever the URL changes
   useEffect(() => {
-    const queryParams = new URLSearchParams(location.search);
     const newSearchValue = queryParams.get('search') || '';
     if (newSearchValue !== searchValue) {
       setSearchValue(newSearchValue);
     }
   }, [location.search]);
 
-  // Handle property item click
-  const handlePropertyClick = (id) => {
-    navigate(`/properties/${id}`);
-  };
-
-  // Handle search action
-  const handleSearch = (newSearchValue) => {
-    // Update the URL with the new search value
-    navigate(`/properties?search=${encodeURIComponent(newSearchValue)}`);
-  };
-
+  // Fetch the properties using the utils API
   useEffect(() => {
-    console.log(`updated: ${date().now()}`);
-    const fetchProperties = async () => {
-      console.log("PropertyList component mounted");
-      console.log("API_URL:", process.env.REACT_APP_API_URL);
+    const fetchPropertiesData = async () => {
       try {
-        const response = await fetch(`${process.env.REACT_APP_API_URL}/api/properties`);
-        if (!response.ok) {
-          console.error('Response error:', response.status, response.statusText);
-          // Do not display error message to the user
-          return;
-        }
-
-        const data = await response.json();
+        const data = await fetchProperties();  // Use fetchProperties from utils/api
         setProperties(data);
-        setFilteredProperties(data); // Initially display all properties
+        setFilteredProperties(data);  // Initially show all properties
       } catch (error) {
-        console.error('获取房源时出错:', error);
-        // Do not display error message to the user
+        console.error('Error fetching properties:', error);
       }
     };
 
     if (activeTab === '租房') {
-      fetchProperties();
+      fetchPropertiesData();
     }
   }, [activeTab]);
 
-  // Filter properties whenever searchValue changes
+  // Filter properties based on the search value
   useEffect(() => {
     if (searchValue) {
       const filtered = properties.filter((property) =>
@@ -132,16 +111,50 @@ const PropertyList = () => {
     }
   }, [searchValue, properties]);
 
+  // Handle property item click for navigation
+  const handlePropertyClick = (id) => {
+    navigate(`/properties/${id}`);
+  };
+
   const renderImages = (images) => {
     if (!images) return null;
-    const imageArray = images.split(',').map((image) => image.trim().replace(/[\[\]"]+/g, ''));
-    const firstImage = imageArray[0];
+
+    // Parse images if it's a string that looks like an array
+    if (typeof images === 'string') {
+      try {
+        images = JSON.parse(images);
+      } catch (e) {
+        console.error('Failed to parse images:', images);
+        return null;
+      }
+    }
+
+    if (!Array.isArray(images) || images.length === 0) return null;
+
+    // Use the first image in the array
+    const firstImage = images[0];
+    const backendUrl = 'http://localhost:8080'; // Backend base URL for serving images
+
+    // Construct the full image URL properly
+    const fullImageUrl = firstImage.startsWith('http')
+      ? firstImage
+      : `${backendUrl.replace(/\/$/, '')}/${firstImage.replace(/^\//, '')}`;
+
+    // Check if fullImageUrl is accessible
+    console.log('Backend URL:', backendUrl);  // Debug: Log the base backend URL
+    console.log('Constructed Image URL:', fullImageUrl);  // Debug: Log the constructed image URL
+
     return (
       <div className="property-image-container">
         <img
-          src={`${process.env.REACT_APP_API_URL}${firstImage}`}
+          src={fullImageUrl}  // Use the full URL from the backend
           alt="房源图片"
           className="property-image"
+          onError={(e) => {
+            e.target.onerror = null; // Prevent infinite loop if fallback fails
+            console.error('Failed to load image:', fullImageUrl);  // Log error if image fails to load
+            e.target.src = "/default-image.png"; // Use a default image if loading fails
+          }}
         />
       </div>
     );
@@ -165,10 +178,8 @@ const PropertyList = () => {
 
   return (
     <div>
-      {/* Include the search component */}
       <PropertySearch onSearch={handleSearch} searchValue={searchValue} setSearchValue={setSearchValue} />
 
-      {/* Navigation for 租房 and 民宿 */}
       <div className="navigation-bar">
         <button
           onClick={() => setActiveTab('租房')}
@@ -185,35 +196,22 @@ const PropertyList = () => {
         </button>
       </div>
 
-      {/* Removed error message display */}
-
-      {/* Check if filtered properties are empty */}
       {filteredProperties.length === 0 && searchValue ? (
         <div className="no-results-message">不好意思，目前已经没有这区的单位了</div>
       ) : (
         <div className="property-list">
           {filteredProperties.map((property) => (
             <div key={property.id} className="property-item" onClick={() => handlePropertyClick(property.id)}>
-              {/* Property Image */}
               {renderImages(property.images)}
-
-              {/* Property Details */}
               <div className="property-details">
-                {/* Display the formatted available date */}
                 <div className="available-date">{formatAvailableDate(property.availableDate)}</div>
                 <h3 className="property-title">{property.title}</h3>
-                <p className="property-info">
-                  卧室: {property.rooms} | 浴室: {property.bathrooms}
-                </p>
+                <p className="property-info">卧室: {property.rooms} | 浴室: {property.bathrooms}</p>
                 <p className="property-description">{property.description}</p>
-                {/* Display tags */}
                 <div className="property-tags">
-                  {property.tags &&
-                    property.tags.split(';').map((tag, index) => (
-                      <span key={index} className="property-tag">
-                        {tag}
-                      </span>
-                    ))}
+                  {property.tags && property.tags.split(';').map((tag, index) => (
+                    <span key={index} className="property-tag">{tag}</span>
+                  ))}
                 </div>
                 <p className="property-price">{property.price} 马币/月</p>
               </div>
