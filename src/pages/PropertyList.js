@@ -1,12 +1,22 @@
-// src/components/PropertyList.js
+// src/pages/PropertyList.js
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { fetchProperties } from '../utils/api';  // Fetch properties from utils/api
+import { fetchProperties, API_URL } from '../utils/api'; // Import API_URL
 import '../styles/PropertyList.css';
 import '../fontawesome-free-6.6.0-web/css/all.min.css';
 
 const PropertySearch = ({ onSearch, searchValue, setSearchValue }) => {
-  const [suggestions] = useState(['SS13', 'SS15', 'CasaTiara', 'IconCity', 'Greenfield', 'GeoSense', 'GeoLake', 'Union', 'Edumetro']);
+  const [suggestions] = useState([
+    'SS13',
+    'SS15',
+    'CasaTiara',
+    'IconCity',
+    'Greenfield',
+    'GeoSense',
+    'GeoLake',
+    'Union',
+    'Edumetro',
+  ]);
 
   const handleSuggestionClick = (suggestion) => {
     setSearchValue(suggestion);
@@ -86,9 +96,9 @@ const PropertyList = () => {
   useEffect(() => {
     const fetchPropertiesData = async () => {
       try {
-        const data = await fetchProperties();  // Use fetchProperties from utils/api
+        const data = await fetchProperties(); // Use fetchProperties from utils/api
         setProperties(data);
-        setFilteredProperties(data);  // Initially show all properties
+        setFilteredProperties(data); // Initially show all properties
       } catch (error) {
         console.error('Error fetching properties:', error);
       }
@@ -102,8 +112,10 @@ const PropertyList = () => {
   // Filter properties based on the search value
   useEffect(() => {
     if (searchValue) {
-      const filtered = properties.filter((property) =>
-        property.location.toLowerCase() === searchValue.toLowerCase()
+      const filtered = properties.filter(
+        (property) =>
+          property.location &&
+          property.location.toLowerCase() === searchValue.toLowerCase()
       );
       setFilteredProperties(filtered);
     } else {
@@ -133,27 +145,28 @@ const PropertyList = () => {
 
     // Use the first image in the array
     const firstImage = images[0];
-    const backendUrl = 'http://localhost:8080'; // Backend base URL for serving images
+
+    // Use API_URL from utils/api.js
+    const backendUrl = API_URL;
 
     // Construct the full image URL properly
+    const sanitizedFirstImage = firstImage.replace(/^\/+/, '');
+
     const fullImageUrl = firstImage.startsWith('http')
       ? firstImage
-      : `${backendUrl.replace(/\/$/, '')}/${firstImage.replace(/^\//, '')}`;
-
-    // Check if fullImageUrl is accessible
-    console.log('Backend URL:', backendUrl);  // Debug: Log the base backend URL
-    console.log('Constructed Image URL:', fullImageUrl);  // Debug: Log the constructed image URL
+      : `${backendUrl.replace(/\/$/, '')}/${sanitizedFirstImage}`;
 
     return (
       <div className="property-image-container">
         <img
-          src={fullImageUrl}  // Use the full URL from the backend
+          src={fullImageUrl}
           alt="房源图片"
           className="property-image"
           onError={(e) => {
-            e.target.onerror = null; // Prevent infinite loop if fallback fails
-            console.error('Failed to load image:', fullImageUrl);  // Log error if image fails to load
-            e.target.src = "/default-image.png"; // Use a default image if loading fails
+            // Prevent infinite loop if fallback fails
+            e.target.onerror = null;
+            console.error('Failed to load image:', fullImageUrl);
+            e.target.style.display = 'none'; // Hide the image if it fails to load
           }}
         />
       </div>
@@ -163,7 +176,20 @@ const PropertyList = () => {
   const formatAvailableDate = (dateString) => {
     const date = new Date(dateString);
     const now = new Date();
-    const monthNames = ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'];
+    const monthNames = [
+      '1月',
+      '2月',
+      '3月',
+      '4月',
+      '5月',
+      '6月',
+      '7月',
+      '8月',
+      '9月',
+      '10月',
+      '11月',
+      '12月',
+    ];
 
     if (date.getFullYear() === now.getFullYear()) {
       if (date.getMonth() === now.getMonth()) {
@@ -178,7 +204,11 @@ const PropertyList = () => {
 
   return (
     <div>
-      <PropertySearch onSearch={handleSearch} searchValue={searchValue} setSearchValue={setSearchValue} />
+      <PropertySearch
+        onSearch={handleSearch}
+        searchValue={searchValue}
+        setSearchValue={setSearchValue}
+      />
 
       <div className="navigation-bar">
         <button
@@ -201,17 +231,28 @@ const PropertyList = () => {
       ) : (
         <div className="property-list">
           {filteredProperties.map((property) => (
-            <div key={property.id} className="property-item" onClick={() => handlePropertyClick(property.id)}>
+            <div
+              key={property.id}
+              className="property-item"
+              onClick={() => handlePropertyClick(property.id)}
+            >
               {renderImages(property.images)}
               <div className="property-details">
-                <div className="available-date">{formatAvailableDate(property.availableDate)}</div>
+                <div className="available-date">
+                  {formatAvailableDate(property.availableDate)}
+                </div>
                 <h3 className="property-title">{property.title}</h3>
-                <p className="property-info">卧室: {property.rooms} | 浴室: {property.bathrooms}</p>
+                <p className="property-info">
+                  卧室: {property.rooms} | 浴室: {property.bathrooms}
+                </p>
                 <p className="property-description">{property.description}</p>
                 <div className="property-tags">
-                  {property.tags && property.tags.split(';').map((tag, index) => (
-                    <span key={index} className="property-tag">{tag}</span>
-                  ))}
+                  {property.tags &&
+                    property.tags.split(';').map((tag, index) => (
+                      <span key={index} className="property-tag">
+                        {tag}
+                      </span>
+                    ))}
                 </div>
                 <p className="property-price">{property.price} 马币/月</p>
               </div>

@@ -1,5 +1,6 @@
+// src/pages/PropertyDetails.js
 import React, { useState, useEffect } from 'react';
-import { fetchPropertyById } from '../utils/api';
+import { fetchPropertyById, API_URL } from '../utils/api'; // Import API_URL
 import { useParams } from 'react-router-dom';
 import '../styles/PropertyDetails.css';
 import wechatNamecard from '../images/wechatNamecard.jpg';
@@ -37,11 +38,15 @@ const PropertyDetails = () => {
 
   // Handlers for previous and next images
   const handlePrevImage = () => {
-    setSelectedImage((prevIndex) => (prevIndex === 0 ? property.images.length - 1 : prevIndex - 1));
+    setSelectedImage((prevIndex) =>
+      prevIndex === 0 ? property.images.length - 1 : prevIndex - 1
+    );
   };
 
   const handleNextImage = () => {
-    setSelectedImage((prevIndex) => (prevIndex === property.images.length - 1 ? 0 : prevIndex + 1));
+    setSelectedImage((prevIndex) =>
+      prevIndex === property.images.length - 1 ? 0 : prevIndex + 1
+    );
   };
 
   if (loading) return <div>Loading...</div>;
@@ -64,12 +69,14 @@ const PropertyDetails = () => {
   leaseEndDate.setFullYear(leaseEndDate.getFullYear() + 1);
   leaseEndDate.setDate(leaseEndDate.getDate() - 1);
 
-  const backendUrl = 'http://localhost:8080'; // Backend base URL for serving images
+  // Use API_URL from utils/api.js
+  const backendUrl = API_URL;
 
   const getFullImageUrl = (image) => {
+    const sanitizedImage = image.replace(/^\/+/, '');
     return image.startsWith('http')
       ? image
-      : `${backendUrl.replace(/\/$/, '')}/${image.replace(/^\//, '')}`;
+      : `${backendUrl.replace(/\/$/, '')}/${sanitizedImage}`;
   };
 
   return (
@@ -114,18 +121,20 @@ const PropertyDetails = () => {
       {/* Right section for details */}
       <div className="property-info-section">
         <h1 className="property-title">{property.title || 'Property Title'}</h1>
-        <p className="property-price">{property.price || 'Price Not Available'} 马币/月</p>
+        <p className="property-price">
+          {property.price || 'Price Not Available'} 马币/月
+        </p>
         <p className="property-description">{property.description || '没有什么要求'}</p>
         <div className="property-tags">
-          {property.tags
-            ? property.tags.split(';').map((tag, index) => (
-                <span key={index} className="tag">
-                  {tag}
-                </span>
-              ))
-            : (
-                <span className="tag">没任何标签</span>
-              )}
+          {property.tags ? (
+            property.tags.split(';').map((tag, index) => (
+              <span key={index} className="tag">
+                {tag}
+              </span>
+            ))
+          ) : (
+            <span className="tag">没任何标签</span>
+          )}
         </div>
 
         <div className="property-key-info">
@@ -161,7 +170,9 @@ const PropertyDetails = () => {
         <div className="lease-info-content">
           <div className="lease-info-row">
             <span className="lease-info-label">可入住日期</span>
-            <span className="lease-info-value">{formatChineseDate(displayAvailableDate)}</span>
+            <span className="lease-info-value">
+              {formatChineseDate(displayAvailableDate)}
+            </span>
           </div>
           <div className="lease-info-row">
             <span className="lease-info-label">签约时长</span>

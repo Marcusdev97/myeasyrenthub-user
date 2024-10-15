@@ -42,7 +42,9 @@ body {
   margin-bottom: 20px;
 }
 
-.active-tab, .inactive-tab, .disabled-tab {
+.active-tab,
+.inactive-tab,
+.disabled-tab {
   border: 1px solid #ddd;
   padding: 10px 20px;
   cursor: pointer;
@@ -247,14 +249,17 @@ body {
 
   .property-image-container {
     width: 100%;
-    height: auto;
     max-width: 300px;
+    height: 200px; /* Set a fixed height */
+    overflow: hidden;
     margin-bottom: 10px;
+    border-radius: 8px;
   }
 
   .property-image {
     width: 100%;
-    height: auto;
+    height: 100%;
+    object-fit: cover; /* Ensure the image covers the container */
   }
 
   .property-details {
